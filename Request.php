@@ -2,8 +2,8 @@
 class Request
 {
     public function __construct(
-        public string $title,
-        public string $datetime,
+        public ?string $title,
+        public ?string $timedate,
     ) {}
 }
 ?>

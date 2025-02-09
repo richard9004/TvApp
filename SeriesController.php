@@ -1,4 +1,5 @@
 <?php
+
 class SeriesController {
     private SeriesRepository $seriesRepository;
 
@@ -6,33 +7,41 @@ class SeriesController {
         $this->seriesRepository = $seriesRepository;
     }
 
-    public function getNextAiringSeries(Request $request): string {
-        
+    public function getNextAiringSeries(Request $request) {
+
+    //   /  echo "<pre>";print_r($request);exit;
+       
         $rules = [
-            'datetime' => ['datetime'],  
+            'timedate' => ['datetime'],  
             'title' => ['string', 'max:255', 'alphanumeric'] 
         ];
-        
-        $errors = Validator::validate(['datetime' => $request->datetime, 'title' => $request->title], $rules);
+
+        $data = [
+            'timedate' => $request->timedate,
+            'title' => $request->title
+        ];
+
+        $errors = Validator::validate($data, $rules);
         if (!empty($errors)) {
-            $errors = json_encode($errors);
-            return $errors;
+            return [
+                'status' => 'error',
+                'errors' => $errors
+            ];
         }
-
-
-        if (empty($datetime)) {
-            $datetime = date('Y-m-d H:i:s'); 
-        } else {
-            $date = new DateTime($datetime);
-            $datetime = $date->format('Y-m-d H:i:s');
-        }
-        $series = $this->seriesRepository->getNextAiringSeries($request->datetime, $request->title);
-       
-        if (empty($series)) {
-            return "No series found";
+        
+       // $timedate = $request->timedate;
+        if (empty($request->timedate)) {
+            $timedate = date('Y-m-d H:i:s'); 
         }else{
-            return json_encode($series);
+            $timedate = date('Y-m-d H:i:s', strtotime($request->timedate));
         }
+      //  echo $timedate;
+       
+        $series = $this->seriesRepository->getNextAiringSeries($timedate, $request->title);
+        return [
+            'status' => 'success',
+            'data' => $series
+        ];
 
 
     }
